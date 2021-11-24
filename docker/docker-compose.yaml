@@ -1,0 +1,38 @@
+version: '3'
+
+networks:
+ default:
+  external:
+   name: netflix
+services:
+ nginx-proxy:
+  image: jwilder/nginx-proxy
+  environment:
+   - DEFAULT_HOST=netflixapi.local
+  ports:
+   - 80:80
+  volumes:
+   - /var/run/docker.sock:/tmp/docker.sock:ro
+  depends_on:
+   - mongo
+   - db
+   - netflix
+
+ mongo:
+  image: mongo
+
+ db:
+  image: ngymarcy99/db-api
+  ports:
+   - 10021:10021
+  depends_on:
+   - mongo
+
+ netflix:
+  image: ngymarcy99/netflix-api
+  environment:
+   - VIRTUAL_HOST=netflixapi.local
+  ports:
+   - 10030:10030
+  depends_on:
+   - db
